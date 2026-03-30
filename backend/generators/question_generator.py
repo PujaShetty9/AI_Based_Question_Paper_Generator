@@ -1,14 +1,14 @@
-import google.generativeai as genai
+from google import genai
 from config import GEMINI_API_KEY
 import json
 
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 def test_gemini_connection():
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content(
-        "Reply with exactly this text: Gemini connection successful."
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents="Reply with exactly this text: Gemini connection successful."
     )
     return response.text
 
@@ -35,7 +35,10 @@ Rules:
 5. Question
 """
 
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     text = response.text
     questions = [q.strip() for q in text.split("\n") if q.strip()]
@@ -79,7 +82,10 @@ Section C - Long Answer Questions
 Make sure the total is exactly {total_marks} marks.
 """
 
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     return response.text
 
@@ -117,7 +123,10 @@ Return format:
 3. Question
 """
 
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     text = response.text
     questions = [q.strip() for q in text.split("\n") if q.strip()]
@@ -152,7 +161,10 @@ Rules:
 - Do not add any extra introduction
 """
 
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     return response.text
 
@@ -194,7 +206,10 @@ Rules:
 - Do not include explanations
 """
 
-    response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     text = response.text.strip()
 
