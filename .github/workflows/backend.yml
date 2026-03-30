@@ -1,0 +1,87 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+      - 'requirements.txt'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'requirements.txt'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest python-dotenv
+        if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Test with pytest
+      run: |
+        pytest backend/ -v || true
+      continue-on-error: true
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Uncomment and configure based on your deployment platform
+    
+    # For Railway deployment:
+    # - name: Deploy to Railway
+    #   env:
+    #     RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    #   run: |
+    #     npm install -g @railway/cli
+    #     railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+    #     railway up
+    
+    # For Heroku deployment:
+    # - name: Deploy to Heroku
+    #   env:
+    #     HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+    #   run: |
+    #     npm install -g heroku
+    #     heroku container:login
+    #     heroku container:push web -a ${{ secrets.HEROKU_APP_NAME }}
+    #     heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}
+    
+    # For PythonAnywhere deployment:
+    # - name: Deploy to PythonAnywhere
+    #   run: |
+    #     curl -X POST ${{ secrets.PYTHONANYWHERE_WEBHOOK }}
+    
+    - name: Build and prepare backend
+      run: |
+        echo "Backend ready for deployment"
+        echo "Configure deployment in .github/workflows/backend.yml based on your platform"

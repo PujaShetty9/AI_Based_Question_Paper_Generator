@@ -1,0 +1,52 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run security checks
+      run: |
+        echo "🔐 Security Check: Scanning for sensitive data..."
+        if grep -r "password" backend/ --include="*.py" | grep -v "# password" | grep -v "PASSWORD"; then
+          echo "⚠️ Warning: Possible hardcoded password found"
+        fi
+        if grep -r "secret" backend/ --include="*.py" | grep -v "# secret" | grep -v "SECRET"; then
+          echo "⚠️ Warning: Possible hardcoded secret found"
+        fi
+        if grep -r "api_key" backend/ --include="*.py" | grep -v "# api_key" | grep -v "API_KEY"; then
+          echo "⚠️ Warning: Possible hardcoded API key found"
+        fi
+        echo "✅ Check complete - ensure secrets are in .env or GitHub Secrets"
+      continue-on-error: true
+
+  dependencies-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check backend requirements
+      run: |
+        if [ -f "backend/requirements.txt" ]; then
+          echo "✅ backend/requirements.txt found"
+          cat backend/requirements.txt
+        else
+          echo "⚠️ backend/requirements.txt not found"
+        fi
+    
+    - name: Check frontend package.json
+      run: |
+        if [ -f "frontend/package.json" ]; then
+          echo "✅ frontend/package.json found"
+        else
+          echo "⚠️ frontend/package.json not found"
+        fi
