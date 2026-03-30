@@ -4,7 +4,6 @@ from generators.question_generator import generate_section_questions, generate_m
 def generate_ai_question_paper(subject, topics, difficulty):
     paper = {}
 
-    # Section A → MCQ with options
     section_a = generate_mcq_questions(
         subject=subject,
         topics=topics,
@@ -13,7 +12,6 @@ def generate_ai_question_paper(subject, topics, difficulty):
         count=5
     )
 
-    # Section B → Short Answer
     section_b = generate_section_questions(
         subject=subject,
         topics=topics,
@@ -24,7 +22,6 @@ def generate_ai_question_paper(subject, topics, difficulty):
         count=4
     )
 
-    # Section C → Long Answer
     section_c = generate_section_questions(
         subject=subject,
         topics=topics,

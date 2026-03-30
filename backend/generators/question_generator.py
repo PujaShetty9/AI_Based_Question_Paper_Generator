@@ -1,10 +1,14 @@
+import re
+from utils.bloom_classifier import is_bloom_match
+from utils.similarity_checker import remove_similar_questions
 from google import genai
 from config import GEMINI_API_KEY
 import json
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-
+def clean_question(q):
+    return re.sub(r"^\d+\.\s*", "", q).strip() 
 def test_gemini_connection():
     response = client.models.generate_content(
         model="gemini-2.0-flash",
@@ -41,8 +45,15 @@ Rules:
     )
 
     text = response.text
-    questions = [q.strip() for q in text.split("\n") if q.strip()]
-    return questions
+    questions = [clean_question(q) for q in text.split("\n") if q.strip()]
+
+    questions = remove_similar_questions(questions)
+
+    validated_questions = [
+        q for q in questions if is_bloom_match(q, blooms_level)
+    ]
+
+    return validated_questions[:num_questions]
 
 
 def generate_full_question_paper(subject, units, total_marks, difficulty):
@@ -107,7 +118,7 @@ Bloom's Taxonomy Level: {blooms_level}
 Question Type: {question_type}
 Marks per question: {marks}
 
-Generate exactly {count} questions.
+Generate exactly {count + 2} questions.
 
 Rules:
 - Questions must be suitable for university exams
@@ -129,8 +140,15 @@ Return format:
     )
 
     text = response.text
-    questions = [q.strip() for q in text.split("\n") if q.strip()]
-    return questions
+    questions = [clean_question(q) for q in text.split("\n") if q.strip()]
+
+    questions = remove_similar_questions(questions)
+
+    validated_questions = [
+        q for q in questions if is_bloom_match(q, blooms_level)
+    ]
+
+    return validated_questions[:count]
 
 
 def generate_answer_and_scheme(question, subject, marks):
@@ -175,7 +193,7 @@ def generate_mcq_questions(subject, topics, difficulty, blooms_level, count):
     prompt = f"""
 You are a university exam question generator.
 
-Generate exactly {count} multiple choice questions for the subject: {subject}
+Generate exactly {count + 2} multiple choice questions for the subject: {subject}
 
 Topics:
 {topics_text}
@@ -243,4 +261,21 @@ Rules:
             "correct_answer": q.get("correct_answer", "")
         })
 
-    return cleaned_mcqs
+    unique_mcqs = []
+    seen_questions = []
+
+    for mcq in cleaned_mcqs:
+        current_question = mcq["question"]
+        is_duplicate = False
+
+        for saved_question in seen_questions:
+            from utils.similarity_checker import jaccard_similarity
+            if jaccard_similarity(current_question, saved_question) >= 0.7:
+                is_duplicate = True
+                break
+
+        if not is_duplicate:
+            unique_mcqs.append(mcq)
+            seen_questions.append(current_question)
+
+    return unique_mcqs[:count]

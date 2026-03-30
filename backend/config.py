@@ -5,4 +5,6 @@ DB_CONFIG = {
     "database": "question_paper_generator"
 }
 
-GEMINI_API_KEY = "AIzaSyDyy5Q6xfkG-N1QQZpVCuaV_kApv-hsqIE"
+# Get API key from environment or use default (add to .env later)
+import os
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAO2CK-I0YjVC-mWi0x00xzmw-ESn3Nj30")

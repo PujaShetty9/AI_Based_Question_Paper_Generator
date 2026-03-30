@@ -1,26 +1,41 @@
 /**
- * Frontend/Backend Setup Instructions
- * 
- * To run the development server:
- * 1. Open your terminal
- * 2. Navigate to the project directory: `cd <project-folder>`
- * 3. Start the dev server: `npm run dev`
- * 
-  to run BACKEND locally : 
-   cd backend
-   pip install -r requirements.txt    # Install all dependencies
-   python app.py                      # Then start the server
+## Setup Instructions
 
- * That's it! Your app will be running locally.
- */
+### Frontend Setup
+1. Navigate to the frontend directory:
+    ```bash
+    cd frontend
+    ```
+2. Install dependencies and start the dev server:
+    ```bash
+    npm install
+    npm run dev
+    ```
 
- // if error arrives to run backend then follow this : it's the virtual env approach
-(python -m pip install google-generativeai) 
-pip install protobuf==4.25.4
+### Backend Setup
+1. Navigate to the backend directory:
+    ```bash
+    cd backend
+    ```
+2. Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. Start the Flask server:
+    ```bash
+    python app.py
+    ```
 
+### Backend Setup (Virtual Environment)
+If you encounter issues, use a virtual environment:
+
+```bash
 python --version
 python -m venv venv
-source venv/Scripts/activate
+source venv/Scripts/activate  # On Windows: venv\Scripts\activate
 pip install google-generativeai flask flask-cors sentence-transformers reportlab python-docx mysql-connector-python
 python app.py
 pip freeze > requirements.txt
+```
+
+Your app will be running locally once both servers start.
