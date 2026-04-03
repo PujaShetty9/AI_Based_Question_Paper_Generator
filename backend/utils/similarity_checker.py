@@ -1,15 +1,4 @@
-import re
-
-
-def normalize_text(text):
-    text = text.lower().strip()
-    text = re.sub(r"^\d+\.\s*", "", text)   # remove numbering
-    text = re.sub(r"[^\w\s]", "", text)     # remove punctuation
-    return text
-
-
-def text_to_word_set(text):
-    return set(normalize_text(text).split())
+from utils.text_utils import normalize_text, text_to_word_set
 
 
 def jaccard_similarity(text1, text2):
@@ -28,19 +17,13 @@ def jaccard_similarity(text1, text2):
 
 
 def remove_similar_questions(questions, threshold=0.7):
-    """
-    Removes questions that are too similar to previous ones.
-    """
     unique_questions = []
 
     for question in questions:
-        is_duplicate = False
-
-        for saved_question in unique_questions:
-            similarity = jaccard_similarity(question, saved_question)
-            if similarity >= threshold:
-                is_duplicate = True
-                break
+        is_duplicate = any(
+            jaccard_similarity(question, saved) >= threshold
+            for saved in unique_questions
+        )
 
         if not is_duplicate:
             unique_questions.append(question)

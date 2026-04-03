@@ -1,4 +1,4 @@
-import re
+from utils.text_utils import normalize_text
 
 
 BLOOM_KEYWORDS = {
@@ -23,18 +23,7 @@ BLOOM_KEYWORDS = {
 }
 
 
-def normalize_text(text):
-    text = text.lower().strip()
-    text = re.sub(r"^\d+\.\s*", "", text)   # remove numbering like 1. 2.
-    text = re.sub(r"[^\w\s]", "", text)     # remove punctuation
-    return text
-
-
 def classify_bloom_level(question):
-    """
-    Classifies a question into a Bloom's taxonomy level
-    using simple keyword matching.
-    """
     question = normalize_text(question)
 
     for level, keywords in BLOOM_KEYWORDS.items():

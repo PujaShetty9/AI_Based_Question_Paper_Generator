@@ -1,20 +1,40 @@
 import re
-from utils.bloom_classifier import is_bloom_match
-from utils.similarity_checker import remove_similar_questions
-from google import genai
-from config import GEMINI_API_KEY
 import json
+from groq import Groq
+from config import GROQ_API_KEY
+from utils.bloom_classifier import is_bloom_match
+from utils.similarity_checker import remove_similar_questions, jaccard_similarity
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = Groq(api_key=GROQ_API_KEY)
+MODEL = "llama-3.3-70b-versatile"
+
+
+def call_groq(prompt, temperature=0.7):
+    """Central Groq API caller."""
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature
+    )
+    return response.choices[0].message.content.strip()
+
+
+def clean_json_response(text):
+    """Strips markdown fences from JSON responses."""
+    text = text.strip()
+    text = re.sub(r"^```json", "", text)
+    text = re.sub(r"^```", "", text)
+    text = re.sub(r"```$", "", text)
+    return text.strip()
+
 
 def clean_question(q):
-    return re.sub(r"^\d+\.\s*", "", q).strip() 
-def test_gemini_connection():
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents="Reply with exactly this text: Gemini connection successful."
-    )
-    return response.text
+    return re.sub(r"^\d+\.\s*", "", q).strip()
+
+
+def test_groq_connection():
+    response = call_groq("Reply with exactly this text: Groq connection successful.")
+    return response
 
 
 def generate_questions(topic, difficulty, blooms_level, question_type, num_questions):
@@ -35,156 +55,14 @@ Rules:
 1. Question
 2. Question
 3. Question
-4. Question
-5. Question
 """
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-
-    text = response.text
+    text = call_groq(prompt)
     questions = [clean_question(q) for q in text.split("\n") if q.strip()]
-
     questions = remove_similar_questions(questions)
+    validated = [q for q in questions if is_bloom_match(q, blooms_level)]
 
-    validated_questions = [
-        q for q in questions if is_bloom_match(q, blooms_level)
-    ]
-
-    return validated_questions[:num_questions]
-
-
-def generate_full_question_paper(subject, units, total_marks, difficulty):
-    units_text = ", ".join(units)
-
-    prompt = f"""
-You are an expert university exam paper setter.
-
-Generate a complete question paper for the subject: {subject}
-
-Units to cover: {units_text}
-Total Marks: {total_marks}
-Overall Difficulty: {difficulty}
-
-Paper Rules:
-- Create a balanced university-level question paper
-- Cover the given units properly
-- Do not repeat similar questions
-- Use clear section headings
-- Include marks for each question
-- Return only the final formatted question paper
-
-Format:
-QUESTION PAPER
-Subject: {subject}
-Total Marks: {total_marks}
-
-Section A - Short Answer Questions
-(5 questions × 2 marks = 10 marks)
-
-Section B - Medium Answer Questions
-(4 questions × 5 marks = 20 marks)
-
-Section C - Long Answer Questions
-(4 questions × 10 marks = 40 marks)
-
-Make sure the total is exactly {total_marks} marks.
-"""
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-
-    return response.text
-
-
-def generate_section_questions(subject, topics, difficulty, blooms_level, question_type, marks, count):
-    topics_text = ", ".join(topics)
-
-    prompt = f"""
-You are a university exam question generator.
-
-Subject: {subject}
-
-Topics to cover:
-{topics_text}
-
-Difficulty Level: {difficulty}
-Bloom's Taxonomy Level: {blooms_level}
-
-Question Type: {question_type}
-Marks per question: {marks}
-
-Generate exactly {count + 2} questions.
-
-Rules:
-- Questions must be suitable for university exams
-- Avoid repeating similar questions
-- Ensure coverage of the given topics
-- Do NOT include answers
-- Do NOT include explanations
-
-Return format:
-
-1. Question
-2. Question
-3. Question
-"""
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-
-    text = response.text
-    questions = [clean_question(q) for q in text.split("\n") if q.strip()]
-
-    questions = remove_similar_questions(questions)
-
-    validated_questions = [
-        q for q in questions if is_bloom_match(q, blooms_level)
-    ]
-
-    return validated_questions[:count]
-
-
-def generate_answer_and_scheme(question, subject, marks):
-    prompt = f"""
-You are an expert university exam evaluator.
-
-Subject: {subject}
-Question: {question}
-Marks: {marks}
-
-Generate the following in a clear structured format:
-
-Model Answer:
-- Write a proper exam-style answer suitable for {marks} marks.
-
-Key Points:
-- List the important points expected in the answer.
-
-Evaluation Scheme:
-- Divide the {marks} marks into a simple marking scheme.
-
-Rules:
-- Return only these 3 sections:
-  1. Model Answer
-  2. Key Points
-  3. Evaluation Scheme
-- Keep the answer relevant and academic
-- Do not add any extra introduction
-"""
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-
-    return response.text
+    return validated[:num_questions]
 
 
 def generate_mcq_questions(subject, topics, difficulty, blooms_level, count):
@@ -195,13 +73,11 @@ You are a university exam question generator.
 
 Generate exactly {count + 2} multiple choice questions for the subject: {subject}
 
-Topics:
-{topics_text}
-
+Topics: {topics_text}
 Difficulty: {difficulty}
 Bloom's Taxonomy Level: {blooms_level}
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format with no markdown:
 [
   {{
     "question": "Question text",
@@ -218,29 +94,19 @@ Return ONLY valid JSON in this exact format:
 Rules:
 - Exactly 4 options per question
 - Only one correct answer
-- Options should be meaningful and non-repetitive
-- Questions must be suitable for university exams
-- Do not include markdown
-- Do not include explanations
+- Do not include markdown or explanations
 """
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
+    text = call_groq(prompt, temperature=0.5)
+    text = clean_json_response(text)
 
-    text = response.text.strip()
+    try:
+        mcqs = json.loads(text)
+    except json.JSONDecodeError:
+        return []
 
-    if text.startswith("```json"):
-        text = text.replace("```json", "", 1).strip()
-    if text.startswith("```"):
-        text = text.replace("```", "", 1).strip()
-    if text.endswith("```"):
-        text = text[:-3].strip()
-
-    mcqs = json.loads(text)
-
-    cleaned_mcqs = []
+    cleaned = []
+    seen = []
 
     for q in mcqs:
         if not isinstance(q, dict):
@@ -250,32 +116,116 @@ Rules:
         if not isinstance(options, dict):
             options = {}
 
-        cleaned_mcqs.append({
-            "question": q.get("question", ""),
-            "options": {
-                "A": options.get("A", ""),
-                "B": options.get("B", ""),
-                "C": options.get("C", ""),
-                "D": options.get("D", "")
-            },
-            "correct_answer": q.get("correct_answer", "")
-        })
+        question_text = q.get("question", "")
 
-    unique_mcqs = []
-    seen_questions = []
-
-    for mcq in cleaned_mcqs:
-        current_question = mcq["question"]
-        is_duplicate = False
-
-        for saved_question in seen_questions:
-            from utils.similarity_checker import jaccard_similarity
-            if jaccard_similarity(current_question, saved_question) >= 0.7:
-                is_duplicate = True
-                break
+        is_duplicate = any(
+            jaccard_similarity(question_text, seen_q) >= 0.7
+            for seen_q in seen
+        )
 
         if not is_duplicate:
-            unique_mcqs.append(mcq)
-            seen_questions.append(current_question)
+            cleaned.append({
+                "question": question_text,
+                "options": {
+                    "A": options.get("A", ""),
+                    "B": options.get("B", ""),
+                    "C": options.get("C", ""),
+                    "D": options.get("D", "")
+                },
+                "correct_answer": q.get("correct_answer", "")
+            })
+            seen.append(question_text)
 
-    return unique_mcqs[:count]
+    return cleaned[:count]
+
+
+def generate_section_questions(subject, topics, difficulty, blooms_level, question_type, marks, count):
+    topics_text = ", ".join(topics)
+
+    prompt = f"""
+You are a university exam question generator.
+
+Subject: {subject}
+Topics: {topics_text}
+Difficulty: {difficulty}
+Bloom's Taxonomy Level: {blooms_level}
+Question Type: {question_type}
+Marks per question: {marks}
+
+Generate exactly {count + 2} questions.
+
+Rules:
+- Suitable for university exams
+- No answers or explanations
+- Format:
+
+1. Question
+2. Question
+3. Question
+"""
+
+    text = call_groq(prompt)
+    questions = [clean_question(q) for q in text.split("\n") if q.strip()]
+    questions = remove_similar_questions(questions)
+    validated = [q for q in questions if is_bloom_match(q, blooms_level)]
+
+    return validated[:count]
+
+
+def generate_full_question_paper(subject, units, total_marks, difficulty):
+    units_text = ", ".join(units)
+
+    prompt = f"""
+You are an expert university exam paper setter.
+
+Generate a complete question paper for: {subject}
+Units: {units_text}
+Total Marks: {total_marks}
+Difficulty: {difficulty}
+
+Format:
+QUESTION PAPER
+Subject: {subject}
+Total Marks: {total_marks}
+
+Section A - Short Answer Questions
+(5 questions x 2 marks = 10 marks)
+
+Section B - Medium Answer Questions
+(4 questions x 5 marks = 20 marks)
+
+Section C - Long Answer Questions
+(4 questions x 10 marks = 40 marks)
+
+Return only the formatted question paper.
+"""
+
+    return call_groq(prompt, temperature=0.6)
+
+
+def generate_answer_and_scheme(question, subject, marks):
+    prompt = f"""
+You are an expert university exam evaluator.
+
+Subject: {subject}
+Question: {question}
+Marks: {marks}
+
+Provide the following:
+
+Model Answer:
+- A proper exam-style answer for {marks} marks.
+
+Key Points:
+- Important points expected in the answer.
+
+Evaluation Scheme:
+- How to divide {marks} marks.
+
+Rules:
+- Return only these 3 sections
+- Keep it academic and relevant
+- No extra introduction
+"""
+
+    return call_groq(prompt, temperature=0.4)

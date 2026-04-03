@@ -8,5 +8,28 @@ def get_db_connection():
         conn = mysql.connector.connect(**DB_CONFIG)
         return conn
     except Error as e:
-        print("Database connection error:", e)
-        return None
+        raise ConnectionError(f"Database connection failed: {e}")
+
+
+def execute_query(query, params=None, fetch=True):
+    """
+    Reusable helper for running queries.
+    - fetch=True  → returns rows (SELECT)
+    - fetch=False → commits and returns lastrowid (INSERT/UPDATE/DELETE)
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute(query, params or ())
+
+        if fetch:
+            result = cursor.fetchall()
+            return result
+        else:
+            conn.commit()
+            return cursor.lastrowid
+
+    finally:
+        cursor.close()
+        conn.close()
