@@ -33,7 +33,10 @@ def _get_styles():
     return title_style, heading_style, normal_style
 
 
-def build_question_paper_pdf(subject, total_marks, section_a_mcqs, section_b_questions, section_c_questions):
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
+
+def build_question_paper_pdf(subject, total_marks, teacher, date, section_a_mcqs, section_b_questions, section_c_questions):
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(

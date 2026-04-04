@@ -95,44 +95,23 @@ def download_question_paper():
     difficulty = data.get("difficulty", "Medium")
     blooms_level = data.get("blooms_level", "Understand")
     total_marks = data.get("total_marks", 70)
+    teacher = data.get("teacher", "N/A")
+    date = data.get("date", "TBD")
 
     if not subject:
         return jsonify({"success": False, "message": "Subject required"}), 400
-    if not topics or not isinstance(topics, list):
-        return jsonify({"success": False, "message": "Topics must be a list"}), 400
+    paper_data = data.get("paper_data", {})
+    mcqs = paper_data.get("Section A", [])
+    section_b = paper_data.get("Section B", [])
+    section_c = paper_data.get("Section C", [])
 
     try:
-        mcqs = generate_mcq_questions(
-            subject=subject,
-            topics=topics,
-            difficulty=difficulty,
-            blooms_level=blooms_level,
-            count=5
-        )
-
-        section_b = generate_section_questions(
-            subject=subject,
-            topics=topics,
-            difficulty=difficulty,
-            blooms_level=blooms_level,
-            question_type="Short/Medium Answer",
-            marks=5,
-            count=4
-        )
-
-        section_c = generate_section_questions(
-            subject=subject,
-            topics=topics,
-            difficulty=difficulty,
-            blooms_level=blooms_level,
-            question_type="Long Answer",
-            marks=10,
-            count=4
-        )
 
         pdf_buffer = build_question_paper_pdf(
             subject=subject,
             total_marks=total_marks,
+            teacher=teacher,
+            date=date,
             section_a_mcqs=mcqs,
             section_b_questions=section_b,
             section_c_questions=section_c

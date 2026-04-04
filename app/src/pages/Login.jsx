@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import './Login.css';
 
 function Login() {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    if (e) e.preventDefault();
+    console.log("Navigating to dashboard...");
+    window.location.href = '/app';
+  };
+
   return (
     <div className="login-page">
       <div className="login-container-minimal">
@@ -9,7 +18,7 @@ function Login() {
           <p>sign in to your safe space</p>
         </div>
         
-        <form className="login-form-minimal" onSubmit={(e) => e.preventDefault()}>
+        <form className="login-form-minimal" onSubmit={handleLogin}>
           <div className="input-group-minimal">
             <input type="email" placeholder="enter your email" className="input-minimal" />
           </div>
@@ -28,7 +37,7 @@ function Login() {
           <span>or</span>
         </div>
         
-        <button className="google-btn-minimal">
+        <button className="google-btn-minimal" type="button" onClick={handleLogin}>
           <div className="google-content-left">
             <svg viewBox="0 0 24 24" className="google-icon-minimal">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
