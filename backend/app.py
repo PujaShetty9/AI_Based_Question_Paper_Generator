@@ -10,7 +10,8 @@ from routes.edit import edit_bp
 app = Flask(__name__)
 
 # Configure CORS for all origins and all routes
-CORS(app)
+app.config["CORS_HEADERS"] = "Content-Type"
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=False)
 
 app.register_blueprint(subjects_bp)
 app.register_blueprint(paper_bp)
