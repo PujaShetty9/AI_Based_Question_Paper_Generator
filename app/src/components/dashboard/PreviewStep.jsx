@@ -1,31 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import pceLogo from '../../assets/PCE.png';
 
-export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
+export default function PreviewStep({ setup, sections, aiPaperData, setStep, onPaperChange }) {
   const [chat, setChat] = useState([
-    { role: 'ai', text: 'Paper generated successfully! Type below if you need any specific questions changed (e.g. "Replace Q1.c with a harder synthesis question").' }
+    { role: 'ai', text: 'Paper generated! You can ask me to modify questions, change difficulty, or type "Add this image to Q1 a" after uploading an image.' }
   ]);
   const [chatInput, setChatInput] = useState('');
-  const [paperData, setPaperData] = useState(aiPaperData);
+  const [pendingImage, setPendingImage] = useState(null); // base64
+  const [pendingImageName, setPendingImageName] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const handleChat = async (e) => {
-    e.preventDefault();
-    if (!chatInput) return;
-    setChat([...chat, { role: 'user', text: chatInput }]);
-    const currentInput = chatInput;
-    setChatInput('');
-
-    setTimeout(() => {
-      setChat(prev => [...prev, { role: 'ai', text: `Got it. I've updated the paper to reflect: "${currentInput}".` }]);
-      if (paperData) {
-        const newPaperData = JSON.parse(JSON.stringify(paperData));
-        const firstSection = Object.keys(newPaperData)[0];
-        if (firstSection && newPaperData[firstSection].length > 0) {
-          newPaperData[firstSection][0] = `[AI Edited] ${currentInput} (Replaced original question)`;
-          setPaperData(newPaperData);
+  // Normalize paper data — convert all questions to objects
+  const normalizePaper = (paper) => {
+    if (!paper) return {};
+    const normalized = {};
+    for (const [sectionName, questions] of Object.entries(paper)) {
+      normalized[sectionName] = questions.map(q => {
+        if (typeof q === 'string') {
+          return { question: q, image: null };
         }
-      }
-    }, 1500);
+        if (typeof q === 'object' && q !== null) {
+          return { ...q, image: q.image || null };
+        }
+        return { question: String(q), image: null };
+      });
+    }
+    return normalized;
   };
+
+  const [paperData, setPaperData] = useState(() => normalizePaper(aiPaperData));
+
+  useEffect(() => {
+  if (onPaperChange) onPaperChange(paperData);
+}, [paperData]);
 
   const getMarksForSection = (sectionName) => {
     if (!sections || sections.length === 0) return 1;
@@ -59,39 +67,172 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
     return '1, 2';
   };
 
+  // Parse which question the teacher is referring to
+  // e.g. "Q1 a" -> { sectionIndex: 0, questionIndex: 0 }
+  const parseQuestionRef = (instruction) => {
+    const match = instruction.match(/[Qq]\.?\s*(\d+)\s*([a-zA-Z])/);
+    if (!match) return null;
+    return {
+      sectionIndex: parseInt(match[1]) - 1,
+      questionIndex: match[2].toLowerCase().charCodeAt(0) - 97
+    };
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPendingImage(reader.result); // base64
+      setPendingImageName(file.name);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleChat = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() && !pendingImage) return;
+
+    const userMessage = chatInput.trim();
+    const imageToSend = pendingImage;
+
+    // Add user message to chat
+    setChat(prev => [...prev, {
+      role: 'user',
+      text: userMessage,
+      image: imageToSend
+    }]);
+    setChatInput('');
+    setPendingImage(null);
+    setPendingImageName('');
+    setIsEditing(true);
+
+    // Check if this is an image attachment instruction
+    if (imageToSend) {
+  const ref = parseQuestionRef(userMessage);
+  if (ref) {
+    const sectionKeys = Object.keys(paperData);
+    const sectionName = sectionKeys[ref.sectionIndex];
+
+    if (sectionName && paperData[sectionName]?.[ref.questionIndex] !== undefined) {
+      const newPaperData = JSON.parse(JSON.stringify(paperData));
+      newPaperData[sectionName][ref.questionIndex].image = imageToSend;
+      setPaperData(newPaperData);
+      setChat(prev => [...prev, {
+        role: 'ai',
+        text: `✅ Image attached to Q${ref.sectionIndex + 1} (${String.fromCharCode(97 + ref.questionIndex)}) successfully.`
+      }]);
+    } else {
+      setChat(prev => [...prev, {
+        role: 'ai',
+        text: `I couldn't find that question. Please specify like "Add this image to Q1 a".`
+      }]);
+    }
+  } else {
+    setChat(prev => [...prev, {
+      role: 'ai',
+      text: `Please tell me where to add the image. e.g. "Add this image to Q1 a"`
+    }]);
+  }
+  setIsEditing(false); // ← always reset here
+  return;
+}
+
+    // Otherwise send to backend for AI edit
+    try {
+      const response = await fetch('http://localhost:5000/edit-paper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instruction: userMessage,
+          paper: paperData,
+          subject: setup?.subject || '',
+          sections: sections || []
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const normalized = normalizePaper(data.paper);
+
+        // Preserve images from current paper
+        for (const [sectionName, questions] of Object.entries(paperData)) {
+          if (normalized[sectionName]) {
+            questions.forEach((q, idx) => {
+              if (q.image && normalized[sectionName][idx]) {
+                normalized[sectionName][idx].image = q.image;
+              }
+            });
+          }
+        }
+
+        setPaperData(normalized);
+        setChat(prev => [...prev, {
+          role: 'ai',
+          text: `Done! I've applied your changes to the paper.`
+        }]);
+      } else {
+        setChat(prev => [...prev, {
+          role: 'ai',
+          text: `Sorry, something went wrong: ${data.message}`
+        }]);
+      }
+    } catch (err) {
+      setChat(prev => [...prev, {
+        role: 'ai',
+        text: `Backend connection failed. Is the server running?`
+      }]);
+    }
+
+    setIsEditing(false);
+  };
+
   const paperSections = paperData ? Object.entries(paperData) : [];
 
   const renderQuestion = (q, idx, marksPerQ, bloomText) => {
     const label = `(${String.fromCharCode(97 + idx)})`;
+    const isMCQ = q.options && typeof q.options === 'object';
 
-    if (typeof q === 'object' && q !== null && q.options) {
-      return (
-        <tr key={`q-${idx}`}>
+    return (
+      <React.Fragment key={`q-${idx}`}>
+        <tr>
           <td style={styles.tdLabel}>{label}</td>
           <td style={styles.tdQuestion}>
-            {q.question}
-            <div style={styles.mcqOptions}>
-              <span>A. {q.options?.A}</span>
-              <span>B. {q.options?.B}</span>
-              <span>C. {q.options?.C}</span>
-              <span>D. {q.options?.D}</span>
-            </div>
+            {isMCQ ? (
+              <>
+                {q.question}
+                <div style={styles.mcqOptions}>
+                  <span>A. {q.options?.A}</span>
+                  <span>B. {q.options?.B}</span>
+                  <span>C. {q.options?.C}</span>
+                  <span>D. {q.options?.D}</span>
+                </div>
+              </>
+            ) : (
+              q.question || String(q)
+            )}
+            {/* Image if attached */}
+            {q.image && (
+              <div style={{ marginTop: '8px' }}>
+                <img
+                  src={q.image}
+                  alt="Question diagram"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '200px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px'
+                  }}
+                />
+              </div>
+            )}
           </td>
           <td style={styles.tdCenter}>{marksPerQ}</td>
           <td style={styles.tdCenter}>{bloomText}</td>
         </tr>
-      );
-    }
-
-    return (
-      <tr key={`q-${idx}`}>
-        <td style={styles.tdLabel}>{label}</td>
-        <td style={styles.tdQuestion}>
-          {typeof q === 'string' ? q : JSON.stringify(q)}
-        </td>
-        <td style={styles.tdCenter}>{marksPerQ}</td>
-        <td style={styles.tdCenter}>{bloomText}</td>
-      </tr>
+      </React.Fragment>
     );
   };
 
@@ -201,11 +342,17 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
         <div className="paper-container" style={{ padding: '0', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}>
           <div style={styles.paper}>
 
-            {/* Header — Logo + College Name */}
+            {/* Header */}
             <table style={styles.headerTable}>
               <tbody>
                 <tr>
-                  <td style={styles.logoCell}>PCE</td>
+                  <td style={styles.logoCell}>
+  <img 
+    src={pceLogo} 
+    alt="PCE Logo"
+    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+  />
+</td>
                   <td style={styles.collegeCell}>
                     <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
                       MES's Pillai College of Engineering (Autonomous), New Panvel - 410206
@@ -218,7 +365,7 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
               </tbody>
             </table>
 
-            {/* Meta — Course, Faculty, Academic Year, Class/Div/Sem */}
+            {/* Meta */}
             <table style={styles.metaTable}>
               <tbody>
                 <tr>
@@ -248,7 +395,7 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
               </tbody>
             </table>
 
-            {/* Exam Bar — Type, Duration, Date, Marks */}
+            {/* Exam Bar */}
             <table style={styles.examBar}>
               <tbody>
                 <tr>
@@ -275,10 +422,10 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
               </div>
             )}
 
-            {/* Main Question Table */}
+            {/* Questions Table */}
             {paperSections.length === 0 ? (
               <div style={{ padding: '24px', color: '#737373', textAlign: 'center' }}>
-                No paper data available. Please go back and generate again.
+                No paper data. Please go back and generate again.
               </div>
             ) : (
               <table style={styles.mainTable}>
@@ -299,24 +446,14 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
 
                     return (
                       <React.Fragment key={sectionName}>
-                        {/* Section Header Row */}
                         <tr style={styles.sectionRow}>
                           <td style={{ ...styles.tdLabel, fontWeight: 'bold' }}>
                             Q.{secIdx + 1}
                           </td>
-                          <td
-                            colSpan="3"
-                            style={{
-                              ...styles.tdQuestion,
-                              fontWeight: 'bold',
-                              background: '#fafafa'
-                            }}
-                          >
+                          <td colSpan="3" style={{ ...styles.tdQuestion, fontWeight: 'bold', background: '#fafafa' }}>
                             {attemptText}
                           </td>
                         </tr>
-
-                        {/* Questions */}
                         {Array.isArray(questions) && questions.map((q, idx) =>
                           renderQuestion(q, idx, marksPerQ, bloomText)
                         )}
@@ -326,11 +463,10 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
                 </tbody>
               </table>
             )}
-
           </div>
         </div>
 
-        {/* Chat / Edit Panel */}
+        {/* Chat Panel */}
         <div className="edit-panel">
           <div style={{ fontWeight: '700', fontSize: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '16px' }}>
             Edit via AI
@@ -339,22 +475,89 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep }) {
           <div className="chat-window">
             {chat.map((msg, idx) => (
               <div key={idx} className={`chat-bubble ${msg.role}`}>
+                {msg.image && (
+                  <img
+                    src={msg.image}
+                    alt="uploaded"
+                    style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '6px' }}
+                  />
+                )}
                 {msg.text}
               </div>
             ))}
+            {isEditing && (
+              <div className="chat-bubble ai">
+                ✏️ Applying changes...
+              </div>
+            )}
           </div>
 
+          {/* Image preview if pending */}
+          {pendingImage && (
+            <div style={{
+              padding: '8px 12px',
+              background: 'rgba(59,130,246,0.05)',
+              border: '1px solid rgba(59,130,246,0.2)',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              color: '#3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <img src={pendingImage} alt="preview"
+                style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px' }} />
+              <span>{pendingImageName} — ready to attach</span>
+              <button
+                onClick={() => { setPendingImage(null); setPendingImageName(''); }}
+                style={{ marginLeft: 'auto', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+              >✕</button>
+            </div>
+          )}
+
+          {/* Input Area */}
           <form onSubmit={handleChat} style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+            {/* Image upload button */}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleImageUpload}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              style={{
+                padding: '0 12px',
+                background: pendingImage ? 'rgba(59,130,246,0.1)' : '#f5f5f5',
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+              title="Upload image"
+            >
+              🖼️
+            </button>
+
             <input
               type="text"
               className="glass-input"
               style={{ flex: 1, padding: '12px' }}
-              placeholder="e.g. Make Q1.b a numerical problem..."
+              placeholder={pendingImage
+                ? 'e.g. Add this image to Q1 a'
+                : 'e.g. Make Q1 b harder or Replace Q2 a...'}
               value={chatInput}
               onChange={e => setChatInput(e.target.value)}
+              disabled={isEditing}
             />
-            <button type="submit" className="btn-primary"
-              style={{ padding: '0 16px', background: '#3b82f6' }}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ padding: '0 16px', background: isEditing ? '#94a3b8' : '#3b82f6' }}
+              disabled={isEditing}
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 strokeWidth="2" style={{ width: 16, height: 16 }}>
                 <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />

@@ -5,6 +5,9 @@ from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.platypus import Image as RLImage
+import base64
+import os
 
 
 def get_styles():
@@ -46,7 +49,6 @@ def get_styles():
 
 def build_question_paper_pdf(
     subject, total_marks, teacher, date,
-    section_a_mcqs, section_b_questions, section_c_questions,
     department="Department of Computer Engineering",
     academic_year="", class_name="", div="", sem="",
     exam_type="", duration="", notes="",
@@ -63,17 +65,25 @@ def build_question_paper_pdf(
     story = []
 
     # ── HEADER TABLE (PCE logo + College name) ──
-    header_data = [[
-        Paragraph("<b>PCE</b>", ParagraphStyle(
+    logo_path = os.path.join(os.path.dirname(__file__), "..", "assets", "pce_logo.png")
+
+    if os.path.exists(logo_path):
+        logo_img = RLImage(logo_path, width=20*mm, height=20*mm)
+        logo_cell = logo_img
+    else:
+        logo_cell = Paragraph("<b>PCE</b>", ParagraphStyle(
             name="Logo", fontName="Times-Bold",
             fontSize=16, alignment=TA_CENTER
-        )),
-        Paragraph(
-            f"<b>MES's Pillai College of Engineering (Autonomous), New Panvel - 410206</b><br/>{department}",
-            ParagraphStyle(name="CollegeName", fontName="Times-Roman",
-                           fontSize=11, alignment=TA_CENTER, leading=16)
-        )
-    ]]
+        ))
+
+    header_data = [[
+    logo_cell,
+    Paragraph(
+        f"<b>MES's Pillai College of Engineering (Autonomous), New Panvel - 410206</b><br/>{department}",
+        ParagraphStyle(name="CollegeName", fontName="Times-Roman",
+                       fontSize=11, alignment=TA_CENTER, leading=16)
+    )
+]]
     header_table = Table(header_data, colWidths=[25*mm, None])
     header_table.setStyle(TableStyle([
         ('BOX', (0, 0), (-1, -1), 0.8, colors.black),
@@ -141,7 +151,6 @@ def build_question_paper_pdf(
         story.append(notes_table)
 
     # ── MAIN QUESTION TABLE ──
-    # Build header row
     q_rows = []
     q_rows.append([
         Paragraph("<b>Q.</b>", small_bold),
@@ -150,7 +159,6 @@ def build_question_paper_pdf(
         Paragraph("<b>BT</b>", small_bold),
     ])
 
-    # Helper to get bloom text
     def bloom_text(section_config):
         if not section_config:
             return "1, 2"
@@ -163,7 +171,6 @@ def build_question_paper_pdf(
             return "5, 6"
         return "1, 2"
 
-    # Helper to get attempt text
     def attempt_text(section_config):
         if not section_config:
             return "Attempt All"
@@ -173,7 +180,6 @@ def build_question_paper_pdf(
             return f"Attempt Any {x} out of {y}"
         return "Attempt All"
 
-    # Helper to find section config by name
     def get_section_config(name):
         if not sections:
             return None
@@ -182,21 +188,34 @@ def build_question_paper_pdf(
                 return s
         return None
 
-    # Use paper_data if provided, else fall back to old sections
-    if paper_data:
-        paper_sections = list(paper_data.items())
-    else:
-        paper_sections = []
-        if section_a_mcqs:
-            paper_sections.append(("Section A", section_a_mcqs))
-        if section_b_questions:
-            paper_sections.append(("Section B", section_b_questions))
-        if section_c_questions:
-            paper_sections.append(("Section C", section_c_questions))
+    def make_inline_image(image_b64):
+        """Returns a scaled RLImage for inline use."""
+        try:
+            if "," in image_b64:
+                image_b64 = image_b64.split(",")[1]
+            img_bytes = base64.b64decode(image_b64)
+            from PIL import Image as PILImage
+            pil_img = PILImage.open(BytesIO(img_bytes))
+            orig_width, orig_height = pil_img.size
+            max_width = 100 * mm
+            max_height = 45 * mm
+            ratio = min(max_width / orig_width, max_height / orig_height)
+            final_width = orig_width * ratio
+            final_height = orig_height * ratio
+            img_buffer = BytesIO(img_bytes)
+            img = RLImage(img_buffer, width=final_width, height=final_height)
+            img.hAlign = 'LEFT'
+            return img
+        except Exception as e:
+            print(f"Inline image error: {e}")
+            return None
+
+    # Use paper_data if provided
+    paper_sections = list(paper_data.items()) if paper_data else []
 
     for sec_idx, (section_name, questions) in enumerate(paper_sections):
         sec_config = get_section_config(section_name)
-        marks_per_q = sec_config.get("marksPerQ", 5) if sec_config else 5
+        marks_per_q = int(sec_config.get("marksPerQ", 0)) if sec_config else 0
         bt = bloom_text(sec_config)
         attempt = attempt_text(sec_config)
 
@@ -208,12 +227,10 @@ def build_question_paper_pdf(
             Paragraph("", small),
         ])
 
-        # Questions
         for q_idx, q in enumerate(questions):
             label = f"({chr(97 + q_idx)})"
 
             if isinstance(q, dict) and "options" in q:
-                # MCQ
                 options = q.get("options", {})
                 q_text = (
                     f"{q.get('question', '')}<br/>"
@@ -229,14 +246,47 @@ def build_question_paper_pdf(
                     Paragraph(bt, small),
                 ])
             else:
-                # Subjective
-                q_text = q if isinstance(q, str) else str(q)
-                q_rows.append([
-                    Paragraph(label, small_bold),
-                    Paragraph(q_text, small),
-                    Paragraph(str(marks_per_q), small),
-                    Paragraph(bt, small),
-                ])
+                q_text = (
+                    q if isinstance(q, str)
+                    else q.get("question", str(q)) if isinstance(q, dict)
+                    else str(q)
+                )
+
+                # Check if image attached — embed inside same cell
+                if isinstance(q, dict) and q.get("image"):
+                    img = make_inline_image(q.get("image"))
+                    if img:
+                        # Nested table: question text on top, image below — same cell
+                        inner = Table(
+                            [[Paragraph(q_text, small)], [img]],
+                            colWidths=[None]
+                        )
+                        inner.setStyle(TableStyle([
+                            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                            ('TOPPADDING', (0, 0), (-1, -1), 2),
+                            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                        ]))
+                        q_rows.append([
+                            Paragraph(label, small_bold),
+                            inner,
+                            Paragraph(str(marks_per_q), small),
+                            Paragraph(bt, small),
+                        ])
+                    else:
+                        q_rows.append([
+                            Paragraph(label, small_bold),
+                            Paragraph(q_text, small),
+                            Paragraph(str(marks_per_q), small),
+                            Paragraph(bt, small),
+                        ])
+                else:
+                    q_rows.append([
+                        Paragraph(label, small_bold),
+                        Paragraph(q_text, small),
+                        Paragraph(str(marks_per_q), small),
+                        Paragraph(bt, small),
+                    ])
 
     q_table = Table(q_rows, colWidths=[15*mm, None, 18*mm, 18*mm])
     q_style = [
@@ -248,11 +298,9 @@ def build_question_paper_pdf(
         ('TOPPADDING', (0, 0), (-1, -1), 5),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        # Header row style
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f5f5f5')),
     ]
 
-    # Gray background for section header rows
     row_num = 1
     for sec_idx, (section_name, questions) in enumerate(paper_sections):
         q_style.append(('BACKGROUND', (0, row_num), (-1, row_num), colors.HexColor('#fafafa')))
@@ -348,7 +396,6 @@ def build_answer_key_pdf(
         }
 
     for section_name, questions in answers_data.items():
-        # Section header
         sec_header = [[Paragraph(f"<b>{section_name}</b>", small_bold)]]
         sec_table = Table(sec_header, colWidths=[None])
         sec_table.setStyle(TableStyle([
@@ -366,7 +413,6 @@ def build_answer_key_pdf(
             answer_data = q.get("answer_data", "")
             label = f"({chr(97 + i)})"
 
-            # Question row
             q_row = [[
                 Paragraph(f"<b>{label}</b>", small_bold),
                 Paragraph(f"<b>{question_text}</b> ({marks} marks)", small),
@@ -383,7 +429,6 @@ def build_answer_key_pdf(
             ]))
             story.append(q_table)
 
-            # Answer row
             answer_lines = str(answer_data).strip()
             ans_row = [[Paragraph(answer_lines.replace("\n", "<br/>"), small)]]
             ans_table = Table(ans_row, colWidths=[None])

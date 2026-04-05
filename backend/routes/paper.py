@@ -111,10 +111,7 @@ def download_question_paper():
             total_marks=total_marks,
             teacher=teacher,
             date=date,
-            section_a_mcqs=[],
-            section_b_questions=[],
-            section_c_questions=[],
-            department=data.get("department", "Department of Computer Engineering"),
+            department=data.get("department", ""),
             academic_year=data.get("academic_year", ""),
             class_name=data.get("class_name", ""),
             div=data.get("div", ""),
@@ -134,4 +131,6 @@ def download_question_paper():
         )
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500

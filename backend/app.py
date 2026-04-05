@@ -5,6 +5,7 @@ from flask_cors import CORS
 from routes.subjects import subjects_bp
 from routes.paper import paper_bp
 from routes.answers import answers_bp
+from routes.edit import edit_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +13,7 @@ CORS(app)
 app.register_blueprint(subjects_bp)
 app.register_blueprint(paper_bp)
 app.register_blueprint(answers_bp)
+app.register_blueprint(edit_bp)
 
 
 @app.route("/")

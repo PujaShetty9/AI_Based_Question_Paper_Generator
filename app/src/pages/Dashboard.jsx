@@ -43,6 +43,7 @@ function Dashboard() {
   // AI Loading State
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiPaperData, setAiPaperData] = useState(null);
+  const [finalPaperData, setFinalPaperData] = useState(null);
 
   const addSection = () => {
   const nextLabel = String.fromCharCode(65 + sections.length);
@@ -138,7 +139,7 @@ function Dashboard() {
         exam_type: setup.examType || '',
         duration: setup.duration || '',
         notes: setup.notes || '',
-        paper_data: aiPaperData,
+        paper_data: finalPaperData || aiPaperData,
         sections: sections
       })
     });
@@ -165,7 +166,8 @@ const handleDownloadAnswerKey = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         subject: setup.subject,
-        paper: aiPaperData,
+        paper: finalPaperData || aiPaperData,
+        sections: sections,
         teacher: setup.teacher || '',
         date: setup.date || '',
         department: setup.department || '',
@@ -565,7 +567,13 @@ const handleDownloadAnswerKey = async () => {
         )}
 
         {step === 4 && (
-          <PreviewStep setup={setup} sections={sections} aiPaperData={aiPaperData} setStep={setStep} />
+          <PreviewStep
+    setup={setup}
+    sections={sections}
+    aiPaperData={aiPaperData}
+    setStep={setStep}
+    onPaperChange={setFinalPaperData}
+  />
         )}
 
         {step === 5 && (
