@@ -10,8 +10,10 @@ from routes.edit import edit_bp
 app = Flask(__name__)
 
 # Configure CORS for all origins and all routes
-app.config["CORS_HEADERS"] = "Content-Type"
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=False)
+CORS(app, origins=[
+    "http://localhost:5173",           # local dev
+    "https://your-frontend-url.com"    # deployed frontend
+])
 
 app.register_blueprint(subjects_bp)
 app.register_blueprint(paper_bp)
