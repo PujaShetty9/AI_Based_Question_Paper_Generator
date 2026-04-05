@@ -5,6 +5,8 @@ import { logoutUser } from '../config/authUtils';
 import PreviewStep from '../components/dashboard/PreviewStep';
 import './Dashboard.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -93,7 +95,7 @@ function Dashboard() {
       .filter(s => s !== '');
 
     try {
-      const response = await fetch('http://localhost:5000/generate-ai-paper', {
+      const response = await fetch('${API_BASE_URL}/generate-ai-paper', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -123,7 +125,7 @@ function Dashboard() {
   const handleDownload = async () => {
   if (!aiPaperData) { alert('No paper generated yet.'); return; }
   try {
-    const response = await fetch('http://localhost:5000/download-question-paper', {
+    const response = await fetch('${API_BASE_URL}/download-question-paper', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -161,7 +163,7 @@ function Dashboard() {
 const handleDownloadAnswerKey = async () => {
   if (!aiPaperData) { alert('No paper generated yet.'); return; }
   try {
-    const response = await fetch('http://localhost:5000/download-answer-key', {
+    const response = await fetch('${API_BASE_URL}/download-answer-key', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

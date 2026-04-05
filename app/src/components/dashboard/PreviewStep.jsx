@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import pceLogo from '../../assets/PCE.png';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function PreviewStep({ setup, sections, aiPaperData, setStep, onPaperChange }) {
   const [chat, setChat] = useState([
     { role: 'ai', text: 'Paper generated! You can ask me to modify questions, change difficulty, or type "Add this image to Q1 a" after uploading an image.' }
@@ -141,7 +143,7 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep, onP
 
     // Otherwise send to backend for AI edit
     try {
-      const response = await fetch('http://localhost:5000/edit-paper', {
+      const response = await fetch('${API_BASE_URL}/edit-paper', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
