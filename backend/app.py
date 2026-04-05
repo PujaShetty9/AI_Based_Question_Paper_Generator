@@ -7,7 +7,17 @@ from routes.paper import paper_bp
 from routes.answers import answers_bp
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS for all origins and all routes
+CORS(app, 
+     resources={
+         r"/api/*": {
+             "origins": "*",
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"]
+         }
+     },
+     supports_credentials=True)
 
 app.register_blueprint(subjects_bp)
 app.register_blueprint(paper_bp)
