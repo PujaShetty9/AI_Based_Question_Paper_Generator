@@ -151,7 +151,7 @@
 .dashboard-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 56px 40px;
+  padding: 56px 40px 140px;
 }
 .dashboard-container.wide {
   max-width: 1400px;
