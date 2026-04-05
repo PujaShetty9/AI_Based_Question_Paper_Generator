@@ -1,27 +1,41 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { loginWithEmail, loginWithGoogle } from '../config/authUtils';
+import { signUpWithEmail, loginWithGoogle } from '../config/authUtils';
 import './Login.css';
 
-function Login() {
+function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleEmailLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (!email || !password) {
+    // Validation
+    if (!email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
 
-    const result = await loginWithEmail(email, password);
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    const result = await signUpWithEmail(email, password);
     
     if (result.success) {
       navigate('/dashboard');
@@ -32,7 +46,7 @@ function Login() {
     setLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setError('');
     setLoading(true);
 
@@ -57,8 +71,8 @@ function Login() {
       </Link>
       <div className="login-container-minimal">
         <div className="login-header-minimal">
-          <h1>welcome back</h1>
-          <p>sign in to your account</p>
+          <h1>create account</h1>
+          <p>join the qpg flow community</p>
         </div>
         
         {error && (
@@ -75,7 +89,7 @@ function Login() {
           </div>
         )}
         
-        <form className="login-form-minimal" onSubmit={handleEmailLogin}>
+        <form className="login-form-minimal" onSubmit={handleSignup}>
           <div className="input-group-minimal">
             <input 
               type="email" 
@@ -87,13 +101,24 @@ function Login() {
             />
           </div>
           
+          <div className="input-group-minimal">
+            <input 
+              type="password" 
+              placeholder="create a password" 
+              className="input-minimal" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+
           <div className="input-group-minimal password-group">
             <input 
               type="password" 
-              placeholder="enter your password" 
+              placeholder="confirm password" 
               className="input-minimal input-password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
             />
             <button 
@@ -115,7 +140,7 @@ function Login() {
         <button 
           className="google-btn-minimal" 
           type="button" 
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignup}
           disabled={loading}
         >
           <div className="google-content-left">
@@ -125,7 +150,7 @@ function Login() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span>{loading ? 'signing in...' : 'continue with google'}</span>
+            <span>{loading ? 'signing up...' : 'continue with google'}</span>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="arrow-icon-minimal">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
@@ -133,11 +158,11 @@ function Login() {
         </button>
         
         <div className="login-footer-minimal">
-          don't have an account? <Link to="/signup">sign up</Link>
+          already have an account? <Link to="/login">sign in</Link>
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Signup;

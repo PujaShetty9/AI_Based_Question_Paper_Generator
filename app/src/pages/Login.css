@@ -6,6 +6,41 @@
   justify-content: center;
   padding: 24px;
   background: #fdfdfd;
+  position: relative;
+}
+
+.login-home-btn {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 12px;
+  color: #111111;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  z-index: 20;
+}
+
+.login-home-btn:hover {
+  background: #f5f5f5;
+  transform: scale(1.08);
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.login-home-btn:active {
+  transform: scale(0.96);
+}
+
+.login-home-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
 }
 
 .login-container-minimal {
@@ -196,10 +231,179 @@
   color: #000000;
 }
 
+/* =============================================
+   MOBILE RESPONSIVE — Login Page
+   ============================================= */
+
+/* Tablet: ≤ 768px */
 @media (max-width: 768px) {
-  .nav-links { display: none; }
-  .login-link { display: none; }
-  .hero-title { font-size: 3rem; }
-  .app-preview-container { display: none; }
+  .login-page {
+    padding: 32px 24px;
+    align-items: center;
+  }
+
+  .login-home-btn {
+    top: 24px;
+    left: 24px;
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .login-home-btn:hover {
+    box-shadow: 3px 3px 0px #000000;
+  }
+
+  .login-home-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .login-container-minimal {
+    padding: 36px 28px;
+    border-radius: 14px;
+    /* Soften the brutalist shadow a touch on mobile so it doesn't clip */
+    box-shadow: 8px 8px 0px #000000;
+    max-width: 100%;
+    margin: 0 8px;
+  }
+
+  .login-container-minimal:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 10px 10px 0px #000000;
+  }
+
+  .login-header-minimal {
+    margin-bottom: 32px;
+  }
+
+  .login-header-minimal h1 {
+    font-size: 1.875rem;
+  }
+
+  .login-header-minimal p {
+    font-size: 0.9rem;
+  }
+
+  .input-minimal {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+
+  .input-password {
+    padding-right: 60px;
+  }
+
+  .submit-btn-minimal {
+    width: 36px;
+    height: 36px;
+    right: 10px;
+  }
+
+  .submit-btn-minimal svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .divider-minimal {
+    margin: 24px 0;
+  }
+
+  .google-btn-minimal {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+
+  .login-footer-minimal {
+    margin-top: 28px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile: ≤ 480px */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 24px 20px;
+    /* Ensure it sits nicely even on very small viewports */
+    min-height: 100dvh;
+  }
+
+  .login-home-btn {
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    border-width: 2px;
+  }
+
+  .login-home-btn:hover {
+    box-shadow: 2px 2px 0px #000000;
+  }
+
+  .login-home-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .login-container-minimal {
+    padding: 28px 20px;
+    border-radius: 12px;
+    border-width: 3px;
+    box-shadow: 6px 6px 0px #000000;
+    margin: 0 12px;
+  }
+
+  .login-container-minimal:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0px #000000;
+  }
+
+  .login-header-minimal h1 {
+    font-size: 1.625rem;
+  }
+
+  .login-header-minimal {
+    margin-bottom: 24px;
+  }
+
+  .login-form-minimal {
+    gap: 16px;
+  }
+
+  .input-minimal {
+    padding: 13px 18px;
+    font-size: 1rem; /* keep ≥ 16px to prevent iOS auto-zoom */
+  }
+
+  .input-password {
+    padding-right: 56px;
+  }
+
+  .google-btn-minimal {
+    padding: 13px 18px;
+    font-size: 0.9rem;
+  }
+
+  .google-icon-minimal {
+    width: 18px;
+    height: 18px;
+  }
+
+  .login-footer-minimal {
+    margin-top: 24px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Very small: ≤ 360px */
+@media (max-width: 360px) {
+  .login-container-minimal {
+    padding: 24px 16px;
+    margin: 0 8px;
+  }
+
+  .login-header-minimal h1 {
+    font-size: 1.5rem;
+  }
 }
 

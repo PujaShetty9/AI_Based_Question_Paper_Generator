@@ -1,0 +1,502 @@
+/* =============================================
+   QPG Flow — Features.css
+   Dark section, Wispr-inspired, curved top
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ---- Section shell ---- */
+.qf-section {
+  background: #161713;
+  padding: 0 0 120px;
+  position: relative;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* ---- Curved top ---- */
+.qf-curve {
+  position: relative;
+  height: 80px;
+  margin-top: -1px;
+  overflow: hidden;
+}
+.qf-curve svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Subtle bg grid ---- */
+.qf-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+}
+
+/* ---- Inner ---- */
+.qf-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 80px 32px 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Header ---- */
+.qf-header {
+  text-align: center;
+  margin-bottom: 100px;
+}
+.qf-header-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(184, 240, 105, 0.1);
+  border: 1px solid rgba(184, 240, 105, 0.25);
+  border-radius: 99px;
+  padding: 6px 16px 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #b8f069;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.qf-tag-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #b8f069;
+  animation: qfPulse 2s ease-in-out infinite;
+}
+@keyframes qfPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,240,105,0.6); }
+  50%       { box-shadow: 0 0 0 5px rgba(184,240,105,0); }
+}
+
+.qf-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: #f0ede6;
+  margin-bottom: 20px;
+}
+.qf-title em {
+  font-style: italic;
+  color: #b8f069;
+}
+.qf-desc {
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.4);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ---- Feature rows ---- */
+.qf-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  margin-bottom: 80px;
+}
+
+/* Row base — slide in from left by default */
+.qf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+/* Flipped rows slide from right */
+.qf-row.qf-row-flip {
+  transform: translateX(50px);
+}
+.qf-row.qf-row-flip .qf-text-side { order: 2; }
+.qf-row.qf-row-flip .qf-visual-side { order: 1; }
+
+/* Visible state */
+.qf-row.qf-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---- Text side ---- */
+.qf-text-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.qf-feat-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 99px;
+  margin-bottom: 20px;
+}
+.qf-feat-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(30px, 3.5vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #f0ede6;
+  margin-bottom: 20px;
+}
+.qf-feat-desc {
+  font-size: 16px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 28px;
+  max-width: 400px;
+}
+.qf-feat-line {
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+/* ---- Visual side ---- */
+.qf-visual-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qf-visual-glow {
+  position: absolute;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.08;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* =============================================
+   COVERAGE VISUAL
+   ============================================= */
+.fv-coverage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fv-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  animation: qfSlideIn 0.5s ease forwards;
+}
+.qf-visible .fv-bar-row { opacity: 0; animation: qfSlideIn 0.5s ease forwards; }
+@keyframes qfSlideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.fv-bar-label {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.5);
+  width: 160px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.fv-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0;
+  transition: width 1.2s ease;
+}
+.qf-visible .fv-bar-fill { width: var(--w); }
+.fv-bar-pct { font-size: 11px; font-weight: 600; width: 34px; text-align: right; }
+.fv-badge {
+  align-self: flex-end;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 99px;
+  margin-top: 8px;
+}
+
+/* =============================================
+   BLOOMS VISUAL
+   ============================================= */
+.fv-blooms {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fv-bloom-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fv-bloom-label {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.45);
+  width: 80px;
+  flex-shrink: 0;
+}
+.fv-bloom-bar-track {
+  flex: 1;
+  height: 22px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.fv-bloom-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 5px;
+  opacity: 0.85;
+  transition: width 1.2s ease;
+}
+.qf-visible .fv-bloom-bar { width: var(--w); }
+.fv-bloom-marks {
+  font-size: 11px;
+  font-weight: 600;
+  width: 28px;
+  text-align: right;
+}
+
+/* =============================================
+   ZERO REPETITION VISUAL
+   ============================================= */
+.fv-zero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+.fv-zero-center {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fv-zero-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(110, 231, 183, 0.2);
+}
+.fv-ring-1 { width: 100px; height: 100px; animation: qfRingSpin 8s linear infinite; }
+.fv-ring-2 { width: 70px; height: 70px; border-color: rgba(110,231,183,0.3); animation: qfRingSpin 5s linear infinite reverse; }
+@keyframes qfRingSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.fv-zero-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+.fv-zero-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 40px;
+  line-height: 1;
+  color: #6ee7b7;
+}
+.fv-zero-sub {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(110,231,183,0.6);
+  font-weight: 500;
+}
+.fv-zero-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fv-zero-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6ee7b7;
+  background: rgba(16,185,129,0.1);
+  border-radius: 6px;
+  padding: 4px 10px;
+  opacity: 0;
+  animation: qfSlideIn 0.4s ease forwards;
+}
+.qf-visible .fv-zero-tag { animation: qfSlideIn 0.4s ease forwards; }
+
+/* =============================================
+   FORMAT VISUAL
+   ============================================= */
+.fv-format {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.fv-format-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  animation: qfFadeScale 0.4s ease forwards;
+}
+.qf-visible .fv-format-card { animation: qfFadeScale 0.4s ease forwards; }
+@keyframes qfFadeScale {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.fv-format-type { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.fv-format-marks { font-size: 11px; color: rgba(255,255,255,0.35); }
+.fv-format-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; }
+
+/* =============================================
+   RUBRIC BIG CARD
+   ============================================= */
+.qf-rubric-wrap {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.qf-rubric-wrap.qf-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.qf-rubric-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 52px 52px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.qf-rubric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(248,113,113,0.4), transparent);
+}
+.qf-rubric-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(239,68,68,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.qf-rubric-left { position: relative; z-index: 2; }
+.qf-rubric-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+.qf-rpill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 99px;
+  background: rgba(239,68,68,0.1);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+/* Rubric preview card */
+.qf-rubric-right { position: relative; z-index: 2; }
+.qf-rubric-preview {
+  background: #1e1f1a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.qf-rp-header {
+  background: #252620;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.qf-rp-title { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.qf-rp-marks { font-size: 11px; font-weight: 600; color: #f87171; background: rgba(239,68,68,0.15); padding: 3px 10px; border-radius: 99px; }
+.qf-rp-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.qf-rp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  opacity: 0;
+  animation: qfSlideIn 0.4s ease forwards;
+}
+.qf-visible .qf-rp-row { animation: qfSlideIn 0.4s ease forwards; }
+.qf-rp-bar { width: 3px; height: 28px; background: #ef4444; border-radius: 2px; flex-shrink: 0; opacity: 0.7; }
+.qf-rp-label { font-size: 12.5px; color: rgba(255,255,255,0.6); flex: 1; }
+.qf-rp-m { font-size: 12px; font-weight: 600; color: #f87171; white-space: nowrap; }
+.qf-rp-footer {
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.qf-rp-status { font-size: 11px; color: #6ee7b7; font-weight: 600; }
+.qf-rp-ai { font-size: 10.5px; padding: 3px 10px; border-radius: 99px; background: rgba(16,185,129,0.1); color: #6ee7b7; font-weight: 500; }
+
+/* =============================================
+   Responsive
+   ============================================= */
+@media (max-width: 768px) {
+  .qf-inner { padding: 60px 20px 0; }
+  .qf-row,
+  .qf-rubric-card { grid-template-columns: 1fr; gap: 32px; }
+  .qf-row.qf-row-flip .qf-text-side { order: 0; }
+  .qf-row.qf-row-flip .qf-visual-side { order: 1; }
+  .qf-rubric-card { padding: 32px 24px; }
+  .fv-bar-label { width: 120px; font-size: 10.5px; }
+  .qf-feat-desc { max-width: 100%; }
+}

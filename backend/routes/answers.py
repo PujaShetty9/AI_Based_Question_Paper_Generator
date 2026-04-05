@@ -38,7 +38,22 @@ def download_answer_key():
 
     try:
         answers = generate_answers_for_paper(subject, paper)
-        pdf_buffer = build_answer_key_pdf(subject, answers)
+
+        pdf_buffer = build_answer_key_pdf(
+            subject=subject,
+            answers_data=answers,
+            teacher=data.get("teacher", ""),
+            date=data.get("date", ""),
+            department=data.get("department", ""),
+            academic_year=data.get("academic_year", ""),
+            class_name=data.get("class_name", ""),
+            div=data.get("div", ""),
+            sem=data.get("sem", ""),
+            exam_type=data.get("exam_type", ""),
+            duration=data.get("duration", ""),
+            notes=data.get("notes", ""),
+            total_marks=data.get("total_marks", "")
+        )
 
         return send_file(
             pdf_buffer,
@@ -46,5 +61,6 @@ def download_answer_key():
             download_name="answer_key.pdf",
             mimetype="application/pdf"
         )
+
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500

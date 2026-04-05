@@ -4,13 +4,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_NAME", "question_paper_generator")
-}
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY is missing. Check your .env file.")
+if not SUPABASE_URL:
+    raise ValueError("SUPABASE_URL is missing. Check your .env file.")
+if not SUPABASE_SECRET_KEY:
+    raise ValueError("SUPABASE_SECRET_KEY is missing. Check your .env file.")

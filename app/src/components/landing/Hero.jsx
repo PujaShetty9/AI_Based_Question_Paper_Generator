@@ -1,53 +1,173 @@
 import { Link } from 'react-router-dom';
+import './Hero.css';
 
 export default function Hero() {
   return (
-    <section className="hero-section">
-      <div className="hero-bg-glow glow-pulse"></div>
-      <div className="hero-badge">
-        <span className="badge-dot pulse-dot"></span>
-        Intelligent Output v2.0
-      </div>
-      <h1 className="hero-title">
-        Scale assessments.<br />Zero repetition.
-      </h1>
-      <p className="hero-subtitle">
-        Input your syllabus and difficulty parameters. We instantly generate perfectly balanced, Bloom's Taxonomy aligned question papers with robust evaluation rubrics.
-      </p>
-      <div className="hero-buttons">
-        <Link to="/login" className="btn-primary btn-large btn-hover-scale">
-          Start Generating Free
-        </Link>
-        <button className="btn-secondary btn-hover-scale">
-          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          Watch it build
-        </button>
-      </div>
+    <section className="qpg-hero">
+      {/* Background blobs */}
+      <div className="qpg-blob qpg-blob-1" />
+      <div className="qpg-blob qpg-blob-2" />
+      <div className="qpg-blob qpg-blob-3" />
+      <div className="qpg-grain" />
 
-      <div className="app-preview-container">
-        <div className="app-preview">
-          <div className="preview-header">
-            <span className="mac-btn mac-close"></span>
-            <span className="mac-btn mac-min"></span>
-            <span className="mac-btn mac-max"></span>
-            <span className="preview-title">QPG Flow • Dashboard</span>
+      <div className="qpg-inner">
+    
+
+        {/* Headline */}
+        <h1 className="qpg-title">
+          Scale assessments.<br />
+          <em>Zero repetition.</em>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="qpg-subtitle">
+          Input your syllabus and difficulty parameters. QPG Flow instantly generates
+          perfectly balanced, Bloom's Taxonomy-aligned question papers with automated rubrics.
+        </p>
+
+        {/* CTAs */}
+        <div className="qpg-ctas">
+          <Link to="/login" className="qpg-btn-primary">
+            Start Generating — It's Free
+          </Link>
+          <button className="qpg-btn-secondary">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            See it in action
+          </button>
+        </div>
+
+        {/* Social proof */}
+        <div className="qpg-proof">
+          <div className="qpg-avatars">
+            <div className="qpg-av qpg-av1">A</div>
+            <div className="qpg-av qpg-av2">R</div>
+            <div className="qpg-av qpg-av3">S</div>
+            <div className="qpg-av qpg-av4">M</div>
           </div>
-          <div className="preview-body">
-            <div className="preview-glow glow-pulse"></div>
-            {/* Dynamic UI Loading Representation */}
-            <div style={{background: 'rgba(255,255,255,0.6)', padding: '24px 32px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '20px', zIndex: 10, backdropFilter: 'blur(20px)', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 10px 40px rgba(0,0,0,0.05)', width: '400px'}}>
-              <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                <div style={{width: '32px', height: '32px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'}}>1</div>
-                <div style={{fontSize: '0.875rem', fontWeight: '600', color: '#171717'}}>Generating Bloom's 'Synthesis' Question...</div>
+          <p className="qpg-proof-text">
+            <strong>420+ educators</strong> generating papers this week
+          </p>
+        </div>
+
+        {/* Preview card */}
+        <div className="qpg-preview-wrap">
+          {/* Floating counter badge */}
+          <div className="qpg-counter-badge">
+            <span className="qpg-pulse-dot" />
+            Generating now...
+          </div>
+
+          {/* Floating tag left */}
+          <div className="qpg-float-tag qpg-ft-left">
+            <div className="qpg-ft-icon" style={{ background: '#f0ffd4' }}>📋</div>
+            <div>
+              <div className="qpg-ft-meta">Auto-assigned</div>
+              <div className="qpg-ft-val">25 marks • 6 questions</div>
+            </div>
+          </div>
+
+          {/* Floating tag right */}
+          <div className="qpg-float-tag qpg-ft-right">
+            <div className="qpg-ft-icon" style={{ background: '#fff0d4' }}>🎯</div>
+            <div>
+              <div className="qpg-ft-meta">Bloom's level</div>
+              <div className="qpg-ft-val">Synthesis — L5</div>
+            </div>
+          </div>
+
+          <div className="qpg-card">
+            {/* Chrome bar */}
+            <div className="qpg-chrome">
+              <div className="qpg-mac-dots">
+                <span className="qpg-mac-dot r" />
+                <span className="qpg-mac-dot y" />
+                <span className="qpg-mac-dot g" />
               </div>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-                <div style={{width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px'}}></div>
-                <div style={{width: '90%', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px'}}></div>
-                <div style={{width: '60%', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px'}}></div>
+              <div className="qpg-url-bar">
+                <span className="qpg-lock">🔒</span> qpgflow.app/dashboard
               </div>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '16px', marginTop: '4px'}}>
-                <div style={{fontSize: '0.75rem', color: '#737373', fontWeight: '500'}}>Format: Case-Based</div>
-                <div style={{fontSize: '0.75rem', color: '#10b981', fontWeight: '600', background: 'rgba(16,185,129,0.1)', padding: '4px 10px', borderRadius: '99px'}}>15 Marks Assigned</div>
+            </div>
+
+            {/* Body */}
+            <div className="qpg-card-body">
+              {/* Sidebar */}
+              <div className="qpg-sidebar">
+                <div className="qpg-sidebar-label">Navigation</div>
+                <div className="qpg-nav-item active"><span className="qpg-dot" />Dashboard</div>
+                <div className="qpg-nav-item"><span className="qpg-dot" />New Paper</div>
+                <div className="qpg-nav-item"><span className="qpg-dot" />Rubrics</div>
+                <div className="qpg-nav-item"><span className="qpg-dot" />History</div>
+                <div className="qpg-nav-item"><span className="qpg-dot" />Settings</div>
+
+                <div className="qpg-sidebar-label" style={{ marginTop: '16px' }}>This Paper</div>
+                <div className="qpg-paper-meta">
+                  <div className="qpg-meta-label">Subject</div>
+                  <div className="qpg-meta-val">Data Structures</div>
+                  <div className="qpg-meta-label" style={{ marginTop: '8px' }}>Difficulty</div>
+                  <div className="qpg-difficulty-bar">
+                    <div className="qpg-dbar-seg" style={{ opacity: 0.9 }} />
+                    <div className="qpg-dbar-seg" style={{ opacity: 0.7 }} />
+                    <div className="qpg-dbar-seg" style={{ opacity: 0.5 }} />
+                    <div className="qpg-dbar-seg qpg-dbar-empty" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Main */}
+              <div className="qpg-main">
+                <div className="qpg-section-header">
+                  <span className="qpg-section-title">Generating Question Paper</span>
+                  <span className="qpg-section-badge">3 of 6 done</span>
+                </div>
+
+                {/* Gen card */}
+                <div className="qpg-gen-card">
+                  <div className="qpg-gen-step">
+                    <div className="qpg-step-num">4</div>
+                    <span className="qpg-step-label">Bloom's "Synthesis" — Case-Based Question</span>
+                    <span className="qpg-step-tag">15 Marks</span>
+                  </div>
+                  <div className="qpg-loading-lines">
+                    <div className="qpg-line" style={{ width: '100%' }} />
+                    <div className="qpg-line" style={{ width: '88%' }} />
+                    <div className="qpg-line" style={{ width: '62%' }} />
+                  </div>
+                  <div className="qpg-gen-footer">
+                    <span className="qpg-footer-meta">Format: Case-Based • Unique</span>
+                    <span className="qpg-footer-mark">✓ Rubric ready</span>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="qpg-stats-grid">
+                  <div className="qpg-stat-box">
+                    <div className="qpg-stat-num">6</div>
+                    <div className="qpg-stat-lbl">Total Qs</div>
+                  </div>
+                  <div className="qpg-stat-box">
+                    <div className="qpg-stat-num">50</div>
+                    <div className="qpg-stat-lbl">Total Marks</div>
+                  </div>
+                  <div className="qpg-stat-box">
+                    <div className="qpg-stat-num">0</div>
+                    <div className="qpg-stat-lbl">Repeats</div>
+                  </div>
+                </div>
+
+                {/* Taxonomy pills */}
+                <div>
+                  <div className="qpg-tax-label">Bloom's Coverage</div>
+                  <div className="qpg-tax-row">
+                    <span className="qpg-pill tp1">Remember ✓</span>
+                    <span className="qpg-pill tp2">Understand ✓</span>
+                    <span className="qpg-pill tp3">Apply ✓</span>
+                    <span className="qpg-pill tp4">Analyze</span>
+                    <span className="qpg-pill tp5">Evaluate</span>
+                    <span className="qpg-pill tp6">Create ←</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

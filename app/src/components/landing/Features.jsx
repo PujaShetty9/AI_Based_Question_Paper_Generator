@@ -1,43 +1,264 @@
-export default function Features() {
+import { useEffect, useRef } from 'react';
+import './Features.css';
+
+const FEATURES = [
+  {
+    id: 'balanced',
+    tag: '01 — Coverage',
+    title: 'Balanced\nSyllabus Coverage',
+    desc: 'Input your syllabus. The engine automatically maps every topic and guarantees perfect distribution of marks and weightage — no gaps, no bias.',
+    accent: '#7ab4f8',
+    accentBg: 'rgba(59,130,246,0.12)',
+    visual: 'coverage',
+  },
+  {
+    id: 'blooms',
+    tag: '02 — Intelligence',
+    title: "Bloom's Taxonomy\nAll Six Levels",
+    desc: "Define difficulty tiers and the AI strictly adheres to cognitive levels — from granular recall right up to synthesis and creative evaluation.",
+    accent: '#c4b5fd',
+    accentBg: 'rgba(139,92,246,0.12)',
+    visual: 'blooms',
+  },
+  {
+    id: 'zero',
+    tag: '03 — Uniqueness',
+    title: 'Zero Repetition.\nEvery Time.',
+    desc: 'Continuous question bank analysis compares every past paper. Maximum novelty is guaranteed across every single exam you generate.',
+    accent: '#6ee7b7',
+    accentBg: 'rgba(16,185,129,0.12)',
+    visual: 'zero',
+  },
+  {
+    id: 'format',
+    tag: '04 — Flexibility',
+    title: 'Every Format\nNatively Supported',
+    desc: 'MCQs, short answers, descriptive essays, case-based scenarios — all generated in the same paper, balanced and formatted automatically.',
+    accent: '#fde047',
+    accentBg: 'rgba(234,179,8,0.12)',
+    visual: 'format',
+  },
+];
+
+function CoverageVisual() {
   return (
-    <section id="features" className="features-section">
-      <div className="features-header">
-        <h2 className="features-title" style={{maxWidth: '800px', margin: '0 auto 24px'}}>Intelligent design for <br/>every examination</h2>
-        <p className="features-desc">Forget manual mark tracking and repeated questions. QPG Flow manages syllabus constraints effortlessly.</p>
-      </div>
-      <div className="features-grid">
-        <div className="feature-card feature-hover">
-          <div className="feature-icon" style={{background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.2)'}}>⚖️</div>
-          <h3 style={{fontSize: '1.5rem', marginBottom: '12px'}}>Balanced Coverage</h3>
-          <p style={{color: '#737373', lineHeight: '1.6'}}>Input your syllabus. The engine automatically maps and guarantees perfect distribution of topics and mark weightage.</p>
-        </div>
-        <div className="feature-card feature-hover">
-          <div className="feature-icon" style={{background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168,85,247,0.2)'}}>🧠</div>
-          <h3 style={{fontSize: '1.5rem', marginBottom: '12px'}}>Bloom's Taxonomy</h3>
-          <p style={{color: '#737373', lineHeight: '1.6'}}>Define difficulty tiers. Questions strictly adhere to cognitive levels—from granular memory recall to complex synthesis.</p>
-        </div>
-        <div className="feature-card feature-hover">
-          <div className="feature-icon" style={{background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)'}}>🔄</div>
-          <h3 style={{fontSize: '1.5rem', marginBottom: '12px'}}>Zero Repetition</h3>
-          <p style={{color: '#737373', lineHeight: '1.6'}}>Intelligent question bank analysis continuously compares past papers to ensure maximum novelty for every single exam.</p>
-        </div>
-        <div className="feature-card feature-hover">
-          <div className="feature-icon" style={{background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)'}}>📝</div>
-          <h3 style={{fontSize: '1.5rem', marginBottom: '12px'}}>Omni-Format</h3>
-          <p style={{color: '#737373', lineHeight: '1.6'}}>Whether you need rapid-fire MCQs, dense descriptive essays, or intricate case-based scenarios—we support it natively.</p>
-        </div>
-        
-        <div className="feature-card feature-hover" style={{gridColumn: '1 / -1', display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap'}}>
-          <div style={{flex: '1 1 300px'}}>
-             <div className="feature-icon" style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', marginBottom: '16px'}}>✅</div>
-             <h3 style={{fontSize: '1.875rem', marginBottom: '16px'}}>Automated Rubrics & Model Answers</h3>
-             <p style={{color: '#737373', fontSize: '1.125rem', lineHeight: '1.6'}}>With every paper generated, QPG Flow simultaneously produces a comprehensive evaluation scheme. From distinct marking criteria to expected ideal answers—grading just became as seamless as generation.</p>
+    <div className="fv-coverage">
+      {[
+        { label: 'Unit 1 — Data Types', pct: 92 },
+        { label: 'Unit 2 — Algorithms', pct: 78 },
+        { label: 'Unit 3 — Complexity', pct: 85 },
+        { label: 'Unit 4 — Trees & Graphs', pct: 70 },
+      ].map((item, i) => (
+        <div className="fv-bar-row" key={i} style={{ animationDelay: `${i * 0.1}s` }}>
+          <div className="fv-bar-label">{item.label}</div>
+          <div className="fv-bar-track">
+            <div className="fv-bar-fill" style={{ '--w': `${item.pct}%`, background: '#7ab4f8' }} />
           </div>
-          <div style={{flex: '1 1 300px', background: '#fafafa', borderRadius: '16px', padding: '24px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.02)'}}>
-              <div style={{fontSize: '0.875rem', color: '#171717', fontWeight: 'bold', marginBottom: '12px'}}>Q4: Marketing Strategy Execution (10 Marks)</div>
-              <div style={{fontSize: '0.75rem', color: '#525252', marginBottom: '8px', paddingLeft: '8px', borderLeft: '2px solid #ef4444'}}>Identification of 3 core segments (3 Marks)</div>
-              <div style={{fontSize: '0.75rem', color: '#525252', marginBottom: '8px', paddingLeft: '8px', borderLeft: '2px solid #ef4444'}}>Alignment with Q3 financial constraints (4 Marks)</div>
-              <div style={{fontSize: '0.75rem', color: '#525252', paddingLeft: '8px', borderLeft: '2px solid #ef4444'}}>Innovativeness of channel selection (3 Marks)</div>
+          <div className="fv-bar-pct" style={{ color: '#7ab4f8' }}>{item.pct}%</div>
+        </div>
+      ))}
+      <div className="fv-badge" style={{ background: 'rgba(59,130,246,0.15)', color: '#7ab4f8' }}>
+        ✓ All units covered
+      </div>
+    </div>
+  );
+}
+
+function BloomsVisual() {
+  const levels = [
+    { l: 'Remember', marks: 5, color: '#c4b5fd' },
+    { l: 'Understand', marks: 8, color: '#a78bfa' },
+    { l: 'Apply', marks: 10, color: '#8b5cf6' },
+    { l: 'Analyze', marks: 10, color: '#7c3aed' },
+    { l: 'Evaluate', marks: 7, color: '#6d28d9' },
+    { l: 'Create', marks: 10, color: '#5b21b6' },
+  ];
+  return (
+    <div className="fv-blooms">
+      {levels.map((lv, i) => (
+        <div className="fv-bloom-row" key={i}>
+          <div className="fv-bloom-label">{lv.l}</div>
+          <div className="fv-bloom-bar-track">
+            <div
+              className="fv-bloom-bar"
+              style={{ '--w': `${(lv.marks / 50) * 100}%`, background: lv.color, animationDelay: `${i * 0.07}s` }}
+            />
+          </div>
+          <div className="fv-bloom-marks" style={{ color: lv.color }}>{lv.marks}m</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ZeroVisual() {
+  return (
+    <div className="fv-zero">
+      <div className="fv-zero-center">
+        <div className="fv-zero-ring fv-ring-1" />
+        <div className="fv-zero-ring fv-ring-2" />
+        <div className="fv-zero-core">
+          <span className="fv-zero-num">0</span>
+          <span className="fv-zero-sub">Repeats</span>
+        </div>
+      </div>
+      <div className="fv-zero-tags">
+        {['Q1 — Unique ✓', 'Q2 — Unique ✓', 'Q3 — Unique ✓', 'Q4 — Unique ✓', 'Q5 — Unique ✓'].map((t, i) => (
+          <div key={i} className="fv-zero-tag" style={{ animationDelay: `${i * 0.12}s` }}>{t}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FormatVisual() {
+  const formats = [
+    { type: 'MCQ', marks: '1m × 10', color: '#fde047' },
+    { type: 'Short Answer', marks: '4m × 5', color: '#fbbf24' },
+    { type: 'Descriptive', marks: '8m × 2', color: '#f59e0b' },
+    { type: 'Case-Based', marks: '15m × 1', color: '#d97706' },
+  ];
+  return (
+    <div className="fv-format">
+      {formats.map((f, i) => (
+        <div className="fv-format-card" key={i} style={{ animationDelay: `${i * 0.1}s` }}>
+          <div className="fv-format-type" style={{ color: f.color }}>{f.type}</div>
+          <div className="fv-format-marks">{f.marks}</div>
+          <div className="fv-format-dot" style={{ background: f.color }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const VISUALS = { coverage: CoverageVisual, blooms: BloomsVisual, zero: ZeroVisual, format: FormatVisual };
+
+export default function Features() {
+  const rowRefs = useRef([]);
+  const rubricRef = useRef(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('qf-visible');
+          }
+        });
+      },
+      { threshold: 0.18 }
+    );
+    rowRefs.current.forEach((el) => el && obs.observe(el));
+    if (rubricRef.current) obs.observe(rubricRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section className="qf-section">
+      {/* Curved top separator */}
+      <div className="qf-curve">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,0 C360,80 1080,80 1440,0 L1440,0 L0,0 Z" fill="#f5f4ef" />
+        </svg>
+      </div>
+
+      <div className="qf-inner">
+        {/* Header */}
+        <div className="qf-header">
+          <div className="qf-header-tag">
+            <span className="qf-tag-dot" />
+            Core Features
+          </div>
+          <h2 className="qf-title">
+            Intelligent design for<br />
+            <em>every examination.</em>
+          </h2>
+          <p className="qf-desc">
+            Forget manual mark tracking and repeated questions.<br />
+            QPG Flow manages every constraint — effortlessly.
+          </p>
+        </div>
+
+        {/* Feature rows */}
+        <div className="qf-rows">
+          {FEATURES.map((feat, i) => {
+            const Visual = VISUALS[feat.visual];
+            const isEven = i % 2 === 1;
+            return (
+              <div
+                key={feat.id}
+                className={`qf-row ${isEven ? 'qf-row-flip' : ''}`}
+                ref={(el) => (rowRefs.current[i] = el)}
+              >
+                {/* Text side */}
+                <div className="qf-text-side">
+                  <div className="qf-feat-tag" style={{ color: feat.accent, background: feat.accentBg }}>
+                    {feat.tag}
+                  </div>
+                  <h3 className="qf-feat-title">
+                    {feat.title.split('\n').map((line, j) => (
+                      <span key={j}>{line}<br /></span>
+                    ))}
+                  </h3>
+                  <p className="qf-feat-desc">{feat.desc}</p>
+                  <div className="qf-feat-line" style={{ background: feat.accent }} />
+                </div>
+
+                {/* Visual side */}
+                <div className="qf-visual-side">
+                  <div className="qf-visual-card" style={{ borderColor: feat.accentBg }}>
+                    <div className="qf-visual-glow" style={{ background: feat.accent }} />
+                    <Visual />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Rubric big card */}
+        <div className="qf-rubric-wrap" ref={rubricRef}>
+          <div className="qf-rubric-card">
+            <div className="qf-rubric-left">
+              <div className="qf-feat-tag" style={{ color: '#f87171', background: 'rgba(239,68,68,0.12)' }}>
+                05 — Evaluation
+              </div>
+              <h3 className="qf-feat-title">Automated Rubrics<br />&amp; Model Answers</h3>
+              <p className="qf-feat-desc">
+                With every paper, QPG Flow simultaneously produces a comprehensive evaluation scheme — distinct marking criteria, expected ideal answers, and partial credit rules. Grading just became as seamless as generation.
+              </p>
+              <div className="qf-rubric-pills">
+                <span className="qf-rpill">Marking Criteria</span>
+                <span className="qf-rpill">Model Answers</span>
+                <span className="qf-rpill">Partial Credit</span>
+                <span className="qf-rpill">PDF Export</span>
+              </div>
+            </div>
+            <div className="qf-rubric-right">
+              <div className="qf-rubric-preview">
+                <div className="qf-rp-header">
+                  <span className="qf-rp-title">Q4: Marketing Strategy Execution</span>
+                  <span className="qf-rp-marks">10 Marks</span>
+                </div>
+                <div className="qf-rp-body">
+                  {[
+                    { label: 'Identification of 3 core segments', marks: 3 },
+                    { label: 'Alignment with Q3 financial constraints', marks: 4 },
+                    { label: 'Innovativeness of channel selection', marks: 3 },
+                  ].map((item, i) => (
+                    <div className="qf-rp-row" key={i} style={{ animationDelay: `${i * 0.15}s` }}>
+                      <div className="qf-rp-bar" />
+                      <span className="qf-rp-label">{item.label}</span>
+                      <span className="qf-rp-m">{item.marks}m</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="qf-rp-footer">
+                  <span className="qf-rp-status">✓ Rubric generated</span>
+                  <span className="qf-rp-ai">AI-verified</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

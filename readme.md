@@ -3,11 +3,11 @@
 
 ### Frontend Setup
 1. Navigate to the app directory:
-
+    ```bash
     cd app
     ```
 2. Install dependencies and start the dev server:
-    
+     ```bash
     npm install
     npm run dev
     ```
@@ -23,7 +23,8 @@
     ```
 3. Start the Flask server:
     ```bash
-    python app.py
+    python app.py  or venv/Scripts/python app.py
+
     ```
 
 ### Backend Setup (Virtual Environment)
