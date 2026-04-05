@@ -143,7 +143,7 @@ export default function PreviewStep({ setup, sections, aiPaperData, setStep, onP
 
     // Otherwise send to backend for AI edit
     try {
-      const response = await fetch('${API_BASE_URL}/edit-paper', {
+      const response = await fetch(`${API_BASE_URL}/edit-paper`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

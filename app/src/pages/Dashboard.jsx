@@ -95,7 +95,7 @@ function Dashboard() {
       .filter(s => s !== '');
 
     try {
-      const response = await fetch('${API_BASE_URL}/generate-ai-paper', {
+      const response = await fetch(`${API_BASE_URL}/generate-ai-paper`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -125,7 +125,7 @@ function Dashboard() {
   const handleDownload = async () => {
   if (!aiPaperData) { alert('No paper generated yet.'); return; }
   try {
-    const response = await fetch('${API_BASE_URL}/download-question-paper', {
+    const response = await fetch(`${API_BASE_URL}/generate-ai-paper`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -163,7 +163,7 @@ function Dashboard() {
 const handleDownloadAnswerKey = async () => {
   if (!aiPaperData) { alert('No paper generated yet.'); return; }
   try {
-    const response = await fetch('${API_BASE_URL}/download-answer-key', {
+    const response = await fetch(`${API_BASE_URL}/download-answer-key`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
