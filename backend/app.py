@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Configure CORS for all origins and all routes
 CORS(app, origins=[
     "http://localhost:5173",           # local dev
-    "https://ai-based-question-paper-generator-lxylrtghw.vercel.app/"    # deployed frontend
+    "https://ai-based-question-paper-generator-npygyzya1.vercel.app"    # deployed frontend
 ])
 
 app.register_blueprint(subjects_bp)
