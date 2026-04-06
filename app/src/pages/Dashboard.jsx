@@ -124,7 +124,7 @@ function Dashboard() {
   const handleDownload = async () => {
   if (!aiPaperData) { alert('No paper generated yet.'); return; }
   try {
-    const response = await fetch(`${API_BASE_URL}/generate-ai-paper`, {
+    const response = await fetch(`${API_BASE_URL}/download-question-paper`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -144,6 +144,8 @@ function Dashboard() {
         sections: sections
       })
     });
+    console.log("Response status:", response.status);
+    console.log("Response content-type:", response.headers.get('content-type'));
     if (!response.ok) throw new Error('Download failed');
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);

@@ -74,10 +74,12 @@ def generate_ai_paper():
 
     if not subject:
         return jsonify({"success": False, "message": "Subject required"}), 400
-    if not topics or not isinstance(topics, list):
-        return jsonify({"success": False, "message": "Topics must be a list"}), 400
     if not sections or not isinstance(sections, list):
         return jsonify({"success": False, "message": "Sections must be a list"}), 400
+
+    # If topics not provided, use subject as default topic
+    if not topics or not isinstance(topics, list):
+        topics = [subject]
 
     try:
         paper = generate_ai_question_paper(

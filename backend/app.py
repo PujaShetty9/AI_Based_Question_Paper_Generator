@@ -10,10 +10,15 @@ from routes.edit import edit_bp
 app = Flask(__name__)
 
 # Configure CORS for all origins and all routes
-CORS(app, origins=[
-    "http://localhost:5173",           # local dev
-    "https://ai-based-question-paper-generator.vercel.app"    # deployed frontend
-])
+CORS(app, 
+    origins=[
+        "http://localhost:5173",
+        "https://ai-based-question-paper-generator.vercel.app"
+    ],
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["Content-Disposition"]
+)
 
 app.register_blueprint(subjects_bp)
 app.register_blueprint(paper_bp)
